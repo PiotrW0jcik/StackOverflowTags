@@ -1,0 +1,43 @@
+services:
+  tags_service: 
+    build:
+      context: ./
+      dockerfile: ./TagsService/Dockerfile
+    container_name: tags_service
+    ports:
+      - "5001:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Redis=redis:6379
+    depends_on:
+      - redis
+    networks:
+      - tags_network
+    restart: unless-stopped
+
+  redis:
+    image: "redis:latest"
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - tags_network
+    restart: unless-stopped
+
+  test:
+    build:
+      context: ./
+      dockerfile: ./TagsService/Dockerfile
+    container_name: test_service
+    command: ["dotnet", "test", "--logger", "trx"]
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - redis
+      - tags_service
+    networks:
+      - tags_network
+
+networks:
+  tags_network:
+    driver: bridge
