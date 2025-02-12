@@ -12,13 +12,14 @@ namespace TagsService
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+                            ConnectionMultiplexer.Connect("redis:6379"));
 
+            builder.Services.AddSingleton<ApiClient.IApiClient, ApiClient.ApiClient>();
             builder.Services.AddScoped<ITagService, TagService>();
             builder.Services.AddSingleton<IRedisCache, RedisCache>();
 
             builder.Services.AddHttpClient();
-
-            builder.Services.AddSingleton(ConnectionMultiplexer.Connect("redis:6379"));
 
             var app = builder.Build();
 
