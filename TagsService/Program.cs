@@ -13,17 +13,12 @@ namespace TagsService
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // Register TagService and RedisCache
             builder.Services.AddScoped<ITagService, TagService>();
             builder.Services.AddSingleton<IRedisCache, RedisCache>();
 
-            // Register IHttpClientFactory
             builder.Services.AddHttpClient();
 
-            // Register IConnectionMultiplexer as a Singleton
-            var redisConnectionString = builder.Environment.IsDevelopment()
-             ? "localhost:6379"  
-             : "redis:6379";
+            builder.Services.AddSingleton(ConnectionMultiplexer.Connect("redis:6379"));
 
             var app = builder.Build();
 
